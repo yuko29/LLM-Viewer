@@ -247,7 +247,7 @@ class ModelAnalyzer:
                 load_weight=0,
                 load_act=q_numel,
                 store_act=o_numel * 2,  # initialize O and save O
-                load_kv_cache=n_blocks_r * (seqlen) * head_size * batchsize * num_attention_heads * kv_byte * 2,
+                load_kv_cache=n_blocks_r * (seqlen) * head_size * batchsize * num_key_value_heads * kv_byte * 2,
                 store_kv_cache=0,
             )
 
@@ -343,7 +343,7 @@ class ModelAnalyzer:
                 load_weight=0,
                 load_act=q_numel,
                 store_act=o_numel * 2,  # initialize O and save O
-                load_kv_cache=n_blocks_r * (seqlen) * head_size * batchsize * num_attention_heads * kv_byte * 2,
+                load_kv_cache=n_blocks_r * (seqlen) * head_size * batchsize * num_key_value_heads * kv_byte * 2,
                 store_kv_cache=0,
             )
         else:
