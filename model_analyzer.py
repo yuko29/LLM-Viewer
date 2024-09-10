@@ -36,7 +36,6 @@ class ModelAnalyzer:
         assert config_file is not None, "config file is not found, please specify it manually."
         print(f"use config file {config_file} for {model_id}")
         if source == "huggingface":
-            model_id = "/home/wangzhong/workspace/repos/LLM-Viewer/Meta-Llama-3.1-405B"
             self.model_params = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
         else:
             if not os.path.exists(f"model_params/{source}.py"):
@@ -102,7 +101,7 @@ class ModelAnalyzer:
             with open(file_name, "a+") as f:
 
                 f.write(
-                    f"\n\n=== {self.model_id} {self.hardware} w_bit={self.w_bit} a_bit={self.a_bit} kv_bit={self.kv_bit} batchsize={self.batchsize} seqlen={self.seqlen}===\n"
+                    f"\n\n=== {self.model_id} {self.hardware} w_bit={self.w_bit} a_bit={self.a_bit} kv_bit={self.kv_bit} batchsize={self.batchsize} seqlen={self.seqlen} tp_size={self.tp_size} ===\n"
                 )
                 # legend
                 f.write(
@@ -185,6 +184,7 @@ class ModelAnalyzer:
         self.kv_bit = kv_bit
         self.batchsize = batchsize
         self.seqlen = seqlen
+        self.tp_size = tp_size
 
         w_byte = self.w_bit / 8
         a_byte = self.a_bit / 8
