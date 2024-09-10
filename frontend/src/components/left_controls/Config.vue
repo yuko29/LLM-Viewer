@@ -32,6 +32,15 @@
         <!-- <span id="seq_length">1024</span> -->
         <input type="number" v-model.lazy="gen_length" min="1" max="4096">
     </div>
+    <div class="config_div">
+        Tensor parallelism
+        <select v-model="tp_size">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="8">8</option>
+        </select>
+    </div>
     <!-- <div class="config_div">
         Generation Length:
         <input type="range" min="1" max="4096" value="1024" oninput="gen_length.innerText = this.value">
@@ -128,6 +137,7 @@ const inference_stage = ref('decode');
 const batch_size = ref(1);
 const seq_length = ref(1024);
 const gen_length = ref(1);
+const tp_size = ref(1);
 const w_quant = ref('FP16');
 const a_quant = ref('FP16');
 const kv_quant = ref('FP16');
@@ -148,6 +158,12 @@ watch(batch_size, (n) => {
 watch(seq_length, (n) => {
     console.log("seq_length", n)
     global_inference_config.value.seq_length = n
+    global_update_trigger.value += 1
+})
+
+watch(tp_size, (n) => {
+    console.log("tp_size", n)
+    global_inference_config.value.tp_size = n
     global_update_trigger.value += 1
 })
 

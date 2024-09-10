@@ -29,6 +29,12 @@ parser.add_argument("--kv_bit", type=int, default=16, help="kv cache bitwidth")
 parser.add_argument(
     "--use_flashattention", action="store_true", help="use flash attention"
 )
+parser.add_argument(
+    "--tp-size",
+    type=int,
+    default=1,
+    help="the number of devices for tensor parallelism to use"
+)
 args = parser.parse_args()
 
 analyzer = ModelAnalyzer(args.model_id, args.hardware, args.config_file,source=args.source)
@@ -39,5 +45,6 @@ results = analyzer.analyze(
     a_bit=args.a_bit,
     kv_bit=args.kv_bit,
     use_flashattention=args.use_flashattention,
+    tp_size=args.tp_size
 )
 analyzer.save_csv()

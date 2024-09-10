@@ -36,6 +36,7 @@ class ModelAnalyzer:
         assert config_file is not None, "config file is not found, please specify it manually."
         print(f"use config file {config_file} for {model_id}")
         if source == "huggingface":
+            model_id = "/home/wangzhong/workspace/repos/LLM-Viewer/Meta-Llama-3.1-405B"
             self.model_params = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
         else:
             if not os.path.exists(f"model_params/{source}.py"):
@@ -124,6 +125,7 @@ class ModelAnalyzer:
         kv_bit=None,
         use_flashattention=False,
         kv_token_ratio=1,
+        tp_size: int = 1
     ):
         """
         seqlen: sequence length
@@ -133,6 +135,7 @@ class ModelAnalyzer:
         kv_bit: key and value bit. if it is None, it will be the same as a_bit
         use_flashattention: use flash attention/flash decoding
         kv_token_ratio: use this for KV compression
+        tp_size: the number of devices for tensor parallelism to use
 
         return is a dict with the following format:
         {
@@ -194,7 +197,7 @@ class ModelAnalyzer:
         num_key_value_heads = config.get_num_key_value_heads(model_params)
         num_hidden_layers = config.get_num_hidden_layers(model_params)
 
-        for name, (ic, oc) in config.get_linear_layers(model_params).items():
+        for name, (ic, oc) in config.get_linear_layers(model_params, tp_size).items():
             # for linear layers
             is_kv_proj = name in ["k_proj", "v_proj"]
             is_normal_proj = not is_kv_proj
@@ -468,15 +471,29 @@ class ModelAnalyzer:
         return self.results
 
     def analyze_generate_task(
-        self, prompt_len, gen_len, batchsize, w_bit=16, a_bit=16, kv_bit=None, use_flashattention = False
+        self,
+        prompt_len,
+        gen_len,
+        batchsize,
+        w_bit=16,
+        a_bit=16,
+        kv_bit=None,
+        use_flashattention = False,
+        tp_size: int = 1
     ):
         prefill_result = self.analyze(
-            prompt_len, batchsize, w_bit, a_bit, kv_bit, use_flashattention=use_flashattention
+            prompt_len,
+            batchsize,
+            w_bit,
+            a_bit,
+            kv_bit,
+            use_flashattention=use_flashattention,
+            tp_size=tp_size
         )
         prefill_time = inference_time = prefill_result["total_results"]["prefill"]["inference_time"]
 
         for i in range(prompt_len, prompt_len + gen_len):
-            result = self.analyze(i, batchsize, w_bit, a_bit, kv_bit, use_flashattention=use_flashattention)
+            result = self.analyze(i, batchsize, w_bit, a_bit, kv_bit, use_flashattention=use_flashattention, tp_size=tp_size)
             inference_time += result["total_results"]["decode"]["inference_time"]
         return {"inference_time": inference_time, "prefill_time": prefill_time}
 

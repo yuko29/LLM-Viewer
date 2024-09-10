@@ -55,6 +55,7 @@ def get_model_graph(model_id, hardware, config_path, inference_config):
     batch_size = int(inference_config["batch_size"])
     use_flashattention = bool(inference_config["use_flashattention"])
     gen_length = int(inference_config["gen_length"])
+    tp_size = int(inference_config["tp_size"])
 
     analyzer = get_analyer(model_id, hardware, config_path)
     result = analyzer.analyze(
@@ -64,6 +65,7 @@ def get_model_graph(model_id, hardware, config_path, inference_config):
         a_bit=a_bit,
         kv_bit=kv_bit,
         use_flashattention=use_flashattention,
+        tp_size=tp_size
     )
     bandwidth, max_OPS, onchip_buffer = analyzer.get_hardware_info()
     GQA = analyzer.get_model_info()["GQA"]

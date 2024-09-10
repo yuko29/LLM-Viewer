@@ -20,19 +20,25 @@ def get_intermediate_size(model_params):
     mlp_ratio=getattr(model_params, "mlp_ratio", 4.0)
     return getattr(model_params, "hidden_size")*mlp_ratio
 
-def get_linear_layers(model_params):
+def get_linear_layers(model_params, tp_size: int):
     hidden_size=get_hidden_size(model_params)
     intermediate_size=get_intermediate_size(model_params)
     key_value_heads=get_num_key_value_heads(model_params)
     attention_heads=get_num_attention_heads(model_params)
+    
+    if tp_size > 1:
+        assert hidden_size % tp_size == 0
+        assert intermediate_size % tp_size == 0
+        assert key_value_heads % tp_size == 0
+    
     return {
-        "q_proj": [hidden_size, hidden_size],
-        "k_proj": [hidden_size, hidden_size * key_value_heads / attention_heads],
-        "v_proj": [hidden_size, hidden_size * key_value_heads / attention_heads],
-        "out_proj": [hidden_size, hidden_size],
-        "gate_proj": [hidden_size, intermediate_size],
-        "up_proj": [hidden_size, intermediate_size],
-        "down_proj": [intermediate_size, hidden_size],
+        "q_proj": [hidden_size, hidden_size // tp_size],
+        "k_proj": [hidden_size, hidden_size * key_value_heads // attention_heads // tp_size],
+        "v_proj": [hidden_size, hidden_size * key_value_heads // attention_heads // tp_size],
+        "out_proj": [hidden_size // tp_size, hidden_size],
+        "gate_proj": [hidden_size, intermediate_size // tp_size],
+        "up_proj": [hidden_size, intermediate_size // tp_size],
+        "down_proj": [intermediate_size // tp_size, hidden_size],
     }
 
 def post_process(model_params,args):
