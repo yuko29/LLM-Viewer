@@ -28,6 +28,9 @@ hardware_params = {
     # https://images.nvidia.com/aem-dam/Solutions/Data-Center/l4/nvidia-ada-gpu-architecture-whitepaper-v2.1.pdf
     # Ada SM has 256 KB Register File, and 128 KB of L1/Shared Memory
     "nvidia_L40": {"bandwidth": 864e9, "FP16": 181e12, "INT8": 362e12, "onchip_buffer": 36352e3},
+    # https://www.nvidia.com/content/dam/en-zz/Solutions/gtcf21/jetson-orin/nvidia-jetson-agx-orin-technical-brief.pdf
+    "nvidia Jetson AGX Orin 64GB": {"bandwidth": 204.8e9, "FP16": 137.5e12, "INT8": 275e12, "onchip_buffer": 2048e3},
+    "nvidia Jetson Orin NX 16GB": {"bandwidth": 102e9, "FP16": 25e12, "INT8": 50e12, "onchip_buffer": 2048e3},
     # Intel Skylake-X (Skylake-X, Cascade Lake) Intel Xeon Phi (Knights Landing, Knights Mill) Intel Ice Lake, Tiger Lake and Rocket Lake
     # support AVX-512 & FMA (512-bit), they has throughput of 1 cycle
     # https://www.intel.com/content/www/us/en/products/sku/230496/intel-core-i913900k-processor-36m-cache-up-to-5-80-ghz/specifications.html
