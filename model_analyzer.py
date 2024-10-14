@@ -2,7 +2,7 @@ import os
 import importlib
 from hardwares.hardware_params import hardware_params
 from roofline_model import roofline_analyze
-from transformers import AutoTokenizer, AutoConfig, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoConfig, AutoModelForCausalLM, LlamaConfig
 from utils import str_number, str_number_time
 import math
 
@@ -36,7 +36,10 @@ class ModelAnalyzer:
         assert config_file is not None, "config file is not found, please specify it manually."
         print(f"use config file {config_file} for {model_id}")
         if source == "huggingface":
-            self.model_params = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
+            if "llama" in model_id.lower():
+                self.model_params = LlamaConfig.from_pretrained(f"hf_model_params/{model_id.replace('/', '_')}", trust_remote_code=True)
+            else:
+                self.model_params = AutoConfig.from_pretrained(model_id, trust_remote_code=True)
         else:
             if not os.path.exists(f"model_params/{source}.py"):
                 raise Exception(f"model_params/{source}.py is not found")
